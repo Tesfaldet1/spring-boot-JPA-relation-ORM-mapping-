@@ -1,5 +1,5 @@
 
-package se.lexickon.springboot.model;
+package se.lexickon.springboot.entity;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -25,6 +25,7 @@ public class Student {
     private String firstName;
     @Column(nullable = false, length = 100)
     private String lastName;
+
     @Column(nullable = false, length = 100, unique = true)
     private String email;
     @Column(nullable = false)
@@ -35,6 +36,15 @@ public class Student {
     public Student() {
         this.status = true;
         this.registrationDate = LocalDateTime.now();
+    }
+
+    public Student( String firstName, String lastName, String email, LocalDate birthDate) {
+        this();
+        this.studentId = studentId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.birthDate = birthDate;
     }
 
     public String getStudentId() {
