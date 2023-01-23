@@ -20,6 +20,11 @@ public class StudentDaoImpl implements StudentDao {
     public Student persist(Student student) {
         entityManager.persist(student);
         return student;
+        /*return  entityManager
+                .createQuery("select s from Student s", Student.class)
+                .getResultStream().findFirst();
+
+         */
     }
 
     @Override
@@ -62,9 +67,12 @@ public class StudentDaoImpl implements StudentDao {
     @Override
     @Transactional
     public void remove(String id) {
-       Student student =  entityManager.find(Student.class, id);
+        entityManager.remove(entityManager.find(Student.class, id));
+       /*Student student =  entityManager.find(Student.class, id);
         if(student != null)  entityManager.remove(id);
-        else throw new IllegalArgumentException("id was not found");
+       // else throw new IllegalArgumentException("id was not found");
+
+        */
 
 
     }

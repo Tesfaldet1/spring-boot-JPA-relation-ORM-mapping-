@@ -6,6 +6,8 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -33,6 +35,16 @@ public class Student {
     private boolean status;
     private LocalDateTime registrationDate;
 
+    @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.REMOVE, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @JoinColumn(name = "address_id")
+    private Address address;
+
+
+    @OneToMany(mappedBy ="borrower",orphanRemoval = true )
+    private List<Book> borrowedBooks;
+    @ManyToMany(mappedBy = "participant")
+    private List<Course> enrRolledCourses;
+
     public Student() {
         this.status = true;
         this.registrationDate = LocalDateTime.now();
@@ -45,6 +57,15 @@ public class Student {
         this.lastName = lastName;
         this.email = email;
         this.birthDate = birthDate;
+    }
+    public Student( String firstName, String lastName, String email, LocalDate birthDate,Address address) {
+        this();
+        this.studentId = studentId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.birthDate = birthDate;
+        setAddress(address);
     }
 
     public String getStudentId() {
@@ -91,12 +112,69 @@ public class Student {
         return status;
     }
 
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        //bi directional
+        if(address !=null)address.setStudent(this);
+        this.address = address;
+    }
+
+    public List<Book> getBorrowedBooks() {
+        return borrowedBooks;
+    }
+
+    public void setBorrowedBooks(List<Book> borrowedBooks) {
+        this.borrowedBooks = borrowedBooks;
+    }
+    public  void borrowBook(Book book){
+        if(book ==null) throw new IllegalArgumentException("the book data was null");
+        if (borrowedBooks == null )borrowedBooks = new ArrayList<>();
+        borrowedBooks.add(book);
+        book.setBorrower(this); //bi directional
+
+    }
+    public  void returnBook(Book book){
+        if(book ==null) throw new IllegalArgumentException("the book data was null");
+        if (borrowedBooks != null ){
+            book.setBorrower(null);
+            borrowedBooks.remove(book);
+
+        }
+    }
+
     public void setStatus(boolean status) {
         this.status = status;
     }
 
     public void setRegistrationDate(LocalDateTime registrationDate) {
         this.registrationDate = registrationDate;
+    }
+
+    public List<Course> getEnrRolledCourses() {
+        if (enrRolledCourses == null) enrRolledCourses = new ArrayList<>();
+        return enrRolledCourses;
+    }
+
+    public void setEnrRolledCourses(List<Course> enrRolledCourses) {
+        this.enrRolledCourses = enrRolledCourses;
+    }
+    public void enrollCourse(Course course){
+        if(course == null) throw new IllegalArgumentException("the course data was null");
+        if(enrRolledCourses == null) enrRolledCourses =new ArrayList<>();
+        enrRolledCourses.add(course);
+        course.getParticipant().add(this);
+
+    }
+    public void unEnrollCourse(Course course){
+        if(course == null) throw new IllegalArgumentException("the course data was null");
+        if(enrRolledCourses!=null){
+            course.getParticipant().remove(this);
+            enrRolledCourses.remove(course);
+        }
+
     }
 
     @Override
