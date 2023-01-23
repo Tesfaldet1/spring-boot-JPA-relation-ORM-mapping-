@@ -1,0 +1,1 @@
+# JPA relation (ORM) mapping
